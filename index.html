@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prometric Exam Portal — CLS</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   ROOT & RESET
+═══════════════════════════════════════ */
+:root {
+  --bg:       #060912;
+  --surface:  #0c1020;
+  --card:     #101528;
+  --card2:    #131929;
+  --border:   rgba(255,255,255,0.06);
+  --border-a: rgba(64,196,255,0.3);
+
+  --teal:  #40c4ff;
+  --teal2: #00acc1;
+  --gold:  #ffd740;
+  --gold2: #ff8f00;
+  --green: #00e5a0;
+  --red:   #ff5370;
+  --muted: #4a5568;
+  --mid:   #8892b0;
+  --hi:    #e8eeff;
+
+  --r-lg: 20px;
+  --r-md: 12px;
+  --r-sm: 8px;
+  --shadow: 0 24px 64px rgba(0,0,0,0.6);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin:0; padding:0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--hi);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════
+   BACKGROUND FX
+═══════════════════════════════════════ */
+body::before {
+  content:'';
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 10%, rgba(64,196,255,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 90%, rgba(255,215,64,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,229,160,0.03) 0%, transparent 70%);
+}
+
+body::after {
+  content:'';
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2340c4ff' fill-opacity='0.018'%3E%3Crect x='38' y='0' width='4' height='80'/%3E%3Crect x='0' y='38' width='80' height='4'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Rainbow top bar */
+.top-bar {
+  position:fixed; top:0; left:0; right:0; height:3px; z-index:1000;
+  background: linear-gradient(90deg, var(--teal), var(--green), var(--gold), var(--red), var(--teal));
+  background-size:300% 100%;
+  animation: flowBar 5s linear infinite;
+}
+@keyframes flowBar { 0%{background-position:0%} 100%{background-position:300%} }
+
+.page { position:relative; z-index:1; }
+
+/* ═══════════════════════════════════════
+   SHARED ANIMATIONS
+═══════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(28px) scale(0.98); }
+  to   { opacity:1; transform:none; }
+}
+@keyframes pulse {
+  0%,100%{opacity:1; transform:scale(1);}
+  50%{opacity:0.5; transform:scale(0.7);}
+}
+@keyframes spin {
+  to { transform:rotate(360deg); }
+}
+@keyframes blink {
+  0%,100%{opacity:1;} 50%{opacity:0.3;}
+}
+
+/* ═══════════════════════════════════════
+   LOGIN PAGE
+═══════════════════════════════════════ */
+#login-page {
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:3rem 1.5rem;
+}
+
+.login-wrap {
+  max-width:460px; width:100%;
+  animation: fadeUp 0.7s cubic-bezier(.22,1,.36,1) both;
+}
+
+.brand-icon {
+  width:64px; height:64px;
+  border-radius:16px;
+  background:linear-gradient(135deg,var(--teal),var(--teal2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem; margin-bottom:1.6rem;
+  box-shadow:0 8px 32px rgba(64,196,255,0.3);
+  animation: iconGlow 3s ease-in-out infinite;
+}
+@keyframes iconGlow {
+  0%,100%{box-shadow:0 8px 32px rgba(64,196,255,0.3);}
+  50%{box-shadow:0 8px 48px rgba(64,196,255,0.55);}
+}
+
+.login-chip {
+  display:inline-flex; align-items:center; gap:0.5rem;
+  background:rgba(64,196,255,0.1);
+  border:1px solid rgba(64,196,255,0.25);
+  color:var(--teal);
+  font-size:0.7rem; font-weight:600;
+  letter-spacing:0.15em; text-transform:uppercase;
+  padding:0.3rem 0.9rem; border-radius:999px;
+  margin-bottom:1.2rem;
+}
+.login-chip::before { content:'●'; font-size:0.45rem; animation:pulse 1.5s infinite; }
+
+.login-title {
+  font-family:'Syne',sans-serif;
+  font-size:clamp(1.9rem,5vw,2.8rem);
+  font-weight:800; line-height:1.08;
+  margin-bottom:0.5rem;
+}
+.login-title span { color:var(--teal); }
+
+.login-sub {
+  font-size:0.88rem; color:var(--mid);
+  font-weight:300; line-height:1.7;
+  margin-bottom:2.2rem;
+}
+
+.login-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:2.2rem;
+  box-shadow:var(--shadow);
+  margin-bottom:1.2rem;
+}
+
+.field-label {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem; font-weight:600;
+  letter-spacing:0.15em; text-transform:uppercase;
+  color:var(--mid); margin-bottom:0.6rem;
+  display:block;
+}
+
+.field-input {
+  width:100%;
+  padding:0.85rem 1.1rem;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:var(--r-md);
+  color:var(--hi);
+  font-family:'JetBrains Mono',monospace;
+  font-size:1rem; font-weight:600;
+  letter-spacing:0.08em;
+  outline:none;
+  transition:border-color 0.2s, box-shadow 0.2s;
+}
+.field-input::placeholder { color:var(--muted); font-weight:400; letter-spacing:0.02em; }
+.field-input:focus {
+  border-color:var(--teal);
+  box-shadow:0 0 0 3px rgba(64,196,255,0.12);
+}
+
+.error-msg {
+  display:none;
+  margin-top:0.7rem;
+  padding:0.7rem 0.9rem;
+  background:rgba(255,83,112,0.1);
+  border:1px solid rgba(255,83,112,0.25);
+  border-radius:var(--r-sm);
+  font-size:0.83rem; color:var(--red);
+}
+.error-msg.show { display:block; animation:fadeUp 0.3s ease; }
+
+.btn-login {
+  width:100%; margin-top:1.2rem;
+  padding:1rem;
+  background:linear-gradient(135deg,var(--teal),var(--teal2));
+  border:none; border-radius:var(--r-md);
+  color:#060912;
+  font-family:'Syne',sans-serif;
+  font-size:1rem; font-weight:700;
+  letter-spacing:0.05em;
+  cursor:pointer;
+  transition:transform 0.2s, box-shadow 0.2s;
+  box-shadow:0 4px 24px rgba(64,196,255,0.3);
+  display:flex; align-items:center; justify-content:center; gap:0.6rem;
+}
+.btn-login:hover { transform:translateY(-2px); box-shadow:0 8px 36px rgba(64,196,255,0.45); }
+.btn-login:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+
+.spinner {
+  width:16px; height:16px;
+  border:2px solid rgba(6,9,18,0.3);
+  border-top-color:#060912;
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+  display:none;
+}
+.btn-login.loading .spinner { display:block; }
+.btn-login.loading .btn-text { opacity:0.7; }
+
+.info-row {
+  display:flex; align-items:center; gap:0.6rem;
+  font-size:0.78rem; color:var(--muted);
+  margin-top:0.8rem;
+}
+.info-row::before { content:'ℹ'; font-size:0.85rem; color:var(--teal); }
+
+/* ═══════════════════════════════════════
+   WELCOME MODAL (shown after login)
+═══════════════════════════════════════ */
+#welcome-modal {
+  display:none;
+  position:fixed; inset:0; z-index:900;
+  background:rgba(6,9,18,0.85);
+  backdrop-filter:blur(12px);
+  align-items:center; justify-content:center;
+  padding:1.5rem;
+}
+#welcome-modal.show { display:flex; }
+
+.welcome-box {
+  background:var(--card);
+  border:1px solid rgba(0,229,160,0.3);
+  border-radius:var(--r-lg);
+  padding:2.8rem 2.5rem;
+  max-width:480px; width:100%;
+  text-align:center;
+  box-shadow:0 0 80px rgba(0,229,160,0.12), var(--shadow);
+  animation:fadeUp 0.5s cubic-bezier(.22,1,.36,1) both;
+}
+
+.welcome-avatar {
+  width:72px; height:72px;
+  border-radius:50%;
+  background:linear-gradient(135deg,rgba(0,229,160,0.2),rgba(64,196,255,0.2));
+  border:2px solid var(--green);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.8rem; margin:0 auto 1.2rem;
+  box-shadow:0 0 32px rgba(0,229,160,0.25);
+}
+
+.welcome-hi {
+  font-family:'Syne',sans-serif;
+  font-size:0.8rem; font-weight:700;
+  letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--green); margin-bottom:0.4rem;
+}
+
+.welcome-name {
+  font-family:'Syne',sans-serif;
+  font-size:1.7rem; font-weight:800;
+  color:var(--hi); margin-bottom:0.3rem;
+}
+
+.welcome-info {
+  font-size:0.85rem; color:var(--mid);
+  margin-bottom:1.8rem; line-height:1.6;
+}
+
+.welcome-stats {
+  display:flex; gap:1rem;
+  margin-bottom:2rem;
+}
+
+.ws-item {
+  flex:1;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  border-radius:var(--r-md);
+  padding:0.9rem 0.6rem;
+  text-align:center;
+}
+.ws-num {
+  font-family:'Syne',sans-serif;
+  font-size:1.5rem; font-weight:800;
+  color:var(--teal);
+}
+.ws-key { font-size:0.68rem; color:var(--mid); text-transform:uppercase; letter-spacing:0.1em; margin-top:0.15rem; }
+
+.btn-begin {
+  width:100%;
+  padding:1rem;
+  background:linear-gradient(135deg,var(--green),#00b380);
+  border:none; border-radius:var(--r-md);
+  color:#060912;
+  font-family:'Syne',sans-serif;
+  font-size:1rem; font-weight:700;
+  letter-spacing:0.05em;
+  cursor:pointer;
+  transition:transform 0.2s, box-shadow 0.2s;
+  box-shadow:0 4px 24px rgba(0,229,160,0.3);
+}
+.btn-begin:hover { transform:translateY(-2px); box-shadow:0 8px 36px rgba(0,229,160,0.45); }
+
+/* Already attempted warning */
+.already-warn {
+  background:rgba(255,215,64,0.08);
+  border:1px solid rgba(255,215,64,0.25);
+  border-radius:var(--r-md);
+  padding:0.9rem 1rem;
+  font-size:0.83rem; color:var(--gold);
+  margin-bottom:1.5rem;
+  text-align:left;
+  line-height:1.6;
+}
+
+/* ═══════════════════════════════════════
+   EXAM PAGE
+═══════════════════════════════════════ */
+#exam-page { display:none; min-height:100vh; padding-bottom:5rem; }
+
+/* Sticky Header */
+.exam-hdr {
+  position:sticky; top:0; z-index:500;
+  background:rgba(6,9,18,0.92);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:0.75rem 2rem;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center; gap:1rem;
+}
+
+.hdr-brand {
+  display:flex; align-items:center; gap:0.6rem;
+}
+.hdr-dot {
+  width:7px;height:7px;border-radius:50%;
+  background:var(--red);
+  animation:pulse 1.2s infinite;
+}
+.hdr-title {
+  font-family:'Syne',sans-serif;
+  font-size:0.85rem; font-weight:700;
+  letter-spacing:0.06em; color:var(--hi);
+}
+
+/* Timer */
+.timer-pill {
+  display:flex; align-items:center; gap:0.5rem;
+  background:rgba(255,215,64,0.08);
+  border:1px solid rgba(255,215,64,0.2);
+  border-radius:10px;
+  padding:0.45rem 1.1rem;
+}
+.timer-lbl {
+  font-size:0.65rem; font-weight:700;
+  letter-spacing:0.12em; text-transform:uppercase;
+  color:rgba(255,215,64,0.7);
+  font-family:'JetBrains Mono',monospace;
+}
+#timer {
+  font-family:'JetBrains Mono',monospace;
+  font-size:1.25rem; font-weight:700;
+  color:var(--gold); min-width:60px; text-align:center;
+  transition:color 0.3s;
+}
+#timer.warn   { color:var(--gold2); }
+#timer.danger { color:var(--red); animation:blink 0.8s infinite; }
+
+.hdr-right {
+  display:flex; flex-direction:column; align-items:flex-end; gap:3px;
+}
+.hdr-student-name {
+  font-size:0.82rem; font-weight:600; color:var(--hi);
+}
+.hdr-student-id {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem; color:var(--mid);
+}
+
+/* Breadcrumb progress */
+.prog-strip {
+  display:flex; gap:3px;
+  padding:0.5rem 2rem;
+  background:rgba(0,0,0,0.2);
+  border-bottom:1px solid var(--border);
+  overflow-x:auto;
+}
+.prog-dot {
+  width:9px;height:9px;border-radius:50%;
+  background:var(--muted);
+  flex-shrink:0;
+  transition:all 0.25s;
+}
+.prog-dot.done {
+  background:var(--teal);
+  box-shadow:0 0 5px rgba(64,196,255,0.5);
+}
+
+/* Exam body */
+.exam-body {
+  max-width:840px;
+  margin:0 auto;
+  padding:2.2rem 1.5rem;
+}
+
+.section-tag {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.65rem; font-weight:600;
+  letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--teal);
+  display:flex; align-items:center; gap:0.7rem;
+  margin-bottom:1.8rem;
+}
+.section-tag::after {
+  content:''; flex:1; height:1px;
+  background:linear-gradient(90deg,rgba(64,196,255,0.2),transparent);
+}
+
+/* Question card */
+.q-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:1.8rem 2rem 1.5rem;
+  margin-bottom:1.3rem;
+  position:relative; overflow:hidden;
+  transition:border-color 0.2s, transform 0.2s;
+  box-shadow:0 3px 20px rgba(0,0,0,0.25);
+}
+.q-card:hover {
+  border-color:rgba(64,196,255,0.18);
+  transform:translateY(-1px);
+}
+.q-card::before {
+  content:''; position:absolute;
+  left:0; top:0; bottom:0; width:3px;
+  background:linear-gradient(180deg,var(--teal),var(--teal2));
+  opacity:0.4;
+}
+.q-card.answered::before { opacity:1; }
+
+.q-top {
+  display:flex; align-items:flex-start; gap:0.9rem;
+  margin-bottom:1.2rem;
+}
+.q-num {
+  background:rgba(64,196,255,0.1);
+  border:1px solid rgba(64,196,255,0.2);
+  color:var(--teal);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.65rem; font-weight:700;
+  letter-spacing:0.1em; text-transform:uppercase;
+  padding:0.28rem 0.65rem; border-radius:6px;
+  flex-shrink:0; margin-top:3px;
+}
+.q-text { font-size:0.95rem; line-height:1.7; color:var(--hi); }
+
+.opts { display:flex; flex-direction:column; gap:0.5rem; }
+
+.opt {
+  display:flex; align-items:center; gap:0.85rem;
+  padding:0.72rem 1rem;
+  border-radius:var(--r-md);
+  border:1px solid rgba(255,255,255,0.05);
+  background:rgba(255,255,255,0.025);
+  cursor:pointer;
+  transition:all 0.16s;
+  font-size:0.88rem;
+  color:rgba(232,238,255,0.75);
+  user-select:none;
+}
+.opt:hover {
+  background:rgba(64,196,255,0.07);
+  border-color:rgba(64,196,255,0.22);
+  color:var(--hi);
+}
+.opt input[type=radio] { display:none; }
+.opt.sel {
+  background:rgba(64,196,255,0.11);
+  border-color:var(--teal);
+  color:var(--hi);
+}
+.opt-bullet {
+  width:24px;height:24px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,0.12);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem;font-weight:700;
+  color:var(--mid); flex-shrink:0;
+  transition:all 0.16s;
+}
+.opt:hover .opt-bullet { border-color:rgba(64,196,255,0.4); color:var(--teal); }
+.opt.sel .opt-bullet { background:var(--teal); border-color:var(--teal); color:#060912; }
+
+/* Submit */
+.submit-zone {
+  text-align:center;
+  padding:2.5rem 0 1rem;
+}
+.submit-hint {
+  font-size:0.78rem; color:var(--muted);
+  font-family:'JetBrains Mono',monospace;
+  margin-bottom:1rem;
+}
+.btn-sub {
+  display:inline-flex; align-items:center; gap:0.7rem;
+  padding:1rem 3rem;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border:none; border-radius:var(--r-md);
+  color:#060912;
+  font-family:'Syne',sans-serif;
+  font-size:1rem; font-weight:700;
+  letter-spacing:0.04em; cursor:pointer;
+  transition:transform 0.2s, box-shadow 0.2s;
+  box-shadow:0 4px 24px rgba(255,215,64,0.28);
+}
+.btn-sub:hover { transform:translateY(-2px); box-shadow:0 8px 40px rgba(255,215,64,0.45); }
+.btn-sub:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+
+/* ═══════════════════════════════════════
+   SUBMITTING OVERLAY
+═══════════════════════════════════════ */
+#submitting-overlay {
+  display:none;
+  position:fixed;inset:0;z-index:800;
+  background:rgba(6,9,18,0.9);
+  backdrop-filter:blur(12px);
+  flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:1.2rem;
+}
+#submitting-overlay.show { display:flex; }
+.sub-spinner {
+  width:56px;height:56px;
+  border:3px solid rgba(64,196,255,0.15);
+  border-top-color:var(--teal);
+  border-radius:50%;
+  animation:spin 0.9s linear infinite;
+}
+.sub-text {
+  font-family:'Syne',sans-serif;
+  font-size:1.1rem;font-weight:700;
+  color:var(--hi);
+}
+.sub-sub { font-size:0.82rem; color:var(--mid); }
+
+/* ═══════════════════════════════════════
+   RESULTS PAGE
+═══════════════════════════════════════ */
+#results-page {
+  display:none;
+  min-height:100vh;
+  padding:4rem 1.5rem 6rem;
+  animation:fadeUp 0.6s cubic-bezier(.22,1,.36,1) both;
+}
+
+.res-inner { max-width:860px; margin:0 auto; }
+
+/* Hero score card */
+.score-hero {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:3rem 2.5rem;
+  text-align:center;
+  margin-bottom:2.5rem;
+  box-shadow:var(--shadow);
+  position:relative; overflow:hidden;
+}
+.score-hero::before {
+  content:''; position:absolute;
+  top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--teal),var(--green),var(--gold));
+}
+
+.sh-eyebrow {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem; font-weight:600;
+  letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--mid); margin-bottom:1.4rem;
+}
+
+.score-ring {
+  width:156px;height:156px;border-radius:50%;
+  margin:0 auto 1.4rem;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.score-ring.pass {
+  border:3px solid var(--green);
+  background:radial-gradient(circle,rgba(0,229,160,0.08),transparent 70%);
+  box-shadow:0 0 0 10px rgba(0,229,160,0.05),0 0 48px rgba(0,229,160,0.2);
+}
+.score-ring.fail {
+  border:3px solid var(--red);
+  background:radial-gradient(circle,rgba(255,83,112,0.08),transparent 70%);
+  box-shadow:0 0 0 10px rgba(255,83,112,0.05),0 0 48px rgba(255,83,112,0.2);
+}
+
+.score-big {
+  font-family:'Syne',sans-serif;
+  font-size:3.2rem;font-weight:800;line-height:1;
+}
+.score-big.pass { color:var(--green); }
+.score-big.fail { color:var(--red); }
+.score-denom { font-size:0.82rem; color:var(--mid); margin-top:0.1rem; }
+
+.verdict-badge {
+  display:inline-block;
+  font-family:'Syne',sans-serif;
+  font-size:1.3rem;font-weight:800;
+  letter-spacing:0.2em;
+  padding:0.35rem 1.8rem;
+  border-radius:999px;
+  margin-bottom:0.6rem;
+}
+.verdict-badge.pass { background:rgba(0,229,160,0.12); color:var(--green); border:2px solid rgba(0,229,160,0.35); }
+.verdict-badge.fail { background:rgba(255,83,112,0.12); color:var(--red); border:2px solid rgba(255,83,112,0.35); }
+
+.verdict-msg { font-size:0.88rem; color:var(--mid); margin-bottom:1.5rem; }
+
+/* Saved to Sheet banner */
+.sheet-banner {
+  display:flex; align-items:center; gap:0.7rem;
+  background:rgba(0,229,160,0.08);
+  border:1px solid rgba(0,229,160,0.2);
+  border-radius:var(--r-md);
+  padding:0.8rem 1.2rem;
+  margin:0 auto 2rem;
+  max-width:420px;
+  font-size:0.83rem; color:var(--green);
+}
+.sheet-banner .sbi { font-size:1rem; }
+.sheet-banner.error {
+  background:rgba(255,215,64,0.08);
+  border-color:rgba(255,215,64,0.2);
+  color:var(--gold);
+}
+
+.res-stats {
+  display:flex; justify-content:center;
+  gap:2.5rem; flex-wrap:wrap;
+}
+.rs-item { text-align:center; }
+.rs-val {
+  font-family:'Syne',sans-serif;
+  font-size:1.7rem;font-weight:800;line-height:1;
+}
+.rs-key {
+  font-size:0.68rem; color:var(--mid);
+  text-transform:uppercase; letter-spacing:0.12em;
+  margin-top:0.2rem; font-weight:600;
+}
+
+/* Student info strip */
+.student-strip {
+  background:rgba(255,255,255,0.025);
+  border:1px solid var(--border);
+  border-radius:var(--r-md);
+  padding:1rem 1.4rem;
+  display:flex; flex-wrap:wrap; gap:1.5rem;
+  margin-bottom:2.5rem;
+  font-size:0.83rem;
+}
+.ss-item { display:flex; flex-direction:column; gap:0.15rem; }
+.ss-key { font-size:0.65rem; color:var(--mid); text-transform:uppercase; letter-spacing:0.1em; font-weight:600; }
+.ss-val { color:var(--hi); font-weight:500; }
+
+/* Review */
+.review-hdr {
+  font-family:'Syne',sans-serif;
+  font-size:1.4rem;font-weight:800;
+  display:flex;align-items:center;gap:1rem;
+  margin-bottom:1.5rem;
+}
+.review-hdr::after { content:'';flex:1;height:1px;background:var(--border); }
+
+.rev-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:1.6rem 1.8rem;
+  margin-bottom:1.2rem;
+  position:relative;overflow:hidden;
+  box-shadow:0 2px 16px rgba(0,0,0,0.2);
+  transition:border-color 0.2s;
+}
+.rev-card:hover { border-color:rgba(64,196,255,0.12); }
+.rev-card::before { content:'';position:absolute;left:0;top:0;bottom:0;width:4px; }
+.rev-card.correct::before { background:var(--green); }
+.rev-card.incorrect::before { background:var(--red); }
+.rev-card.skipped::before { background:var(--muted); }
+
+.rv-top { display:flex;align-items:flex-start;gap:0.8rem;margin-bottom:0.9rem; }
+.rv-tag {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.6rem;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;
+  padding:0.22rem 0.65rem;border-radius:5px;
+  flex-shrink:0;margin-top:3px;
+}
+.rv-tag.correct  { background:rgba(0,229,160,0.12);color:var(--green);border:1px solid rgba(0,229,160,0.2); }
+.rv-tag.incorrect{ background:rgba(255,83,112,0.12);color:var(--red);border:1px solid rgba(255,83,112,0.2); }
+.rv-tag.skipped  { background:rgba(74,85,104,0.3);color:var(--mid);border:1px solid var(--border); }
+
+.rv-qtext { font-size:0.9rem;line-height:1.65;color:var(--hi); }
+
+.ans-block { display:flex;flex-direction:column;gap:0.38rem;margin:0.8rem 0; }
+.ans-row {
+  display:flex;align-items:flex-start;gap:0.55rem;
+  padding:0.5rem 0.85rem;border-radius:var(--r-sm);
+  font-size:0.84rem;line-height:1.5;
+}
+.ans-row.ua-wrong { background:rgba(255,83,112,0.08);border:1px solid rgba(255,83,112,0.18); }
+.ans-row.ua-right { background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.18); }
+.ans-row.ca-row   { background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.18); }
+.ans-tag {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.65rem;font-weight:700;
+  min-width:100px;flex-shrink:0;
+  text-transform:uppercase;letter-spacing:0.06em;padding-top:1px;
+}
+.ans-row.ua-wrong .ans-tag { color:var(--red); }
+.ans-row.ua-right .ans-tag { color:var(--green); }
+.ans-row.ca-row .ans-tag   { color:var(--green); }
+.ans-val { color:var(--hi); }
+
+.exp-box {
+  background:rgba(167,139,250,0.05);
+  border:1px solid rgba(167,139,250,0.12);
+  border-radius:var(--r-sm);
+  padding:0.9rem 1.1rem;margin-top:0.8rem;
+}
+.exp-ttl {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.63rem;font-weight:700;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:#a78bfa;margin-bottom:0.5rem;
+}
+.exp-p { font-size:0.84rem;line-height:1.7;color:rgba(232,238,255,0.75); }
+
+/* Retry */
+.btn-retry-wrap { text-align:center;margin-top:3rem; }
+.btn-retry {
+  padding:0.85rem 2.2rem;
+  background:transparent;
+  border:1.5px solid rgba(64,196,255,0.3);
+  border-radius:var(--r-md);
+  color:var(--teal);
+  font-family:'Syne',sans-serif;
+  font-size:0.9rem;font-weight:700;
+  letter-spacing:0.06em;cursor:pointer;
+  transition:all 0.2s;
+}
+.btn-retry:hover {
+  background:rgba(64,196,255,0.08);
+  border-color:var(--teal);
+  transform:translateY(-2px);
+  box-shadow:0 4px 20px rgba(64,196,255,0.2);
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media(max-width:600px){
+  .exam-hdr { grid-template-columns:1fr auto; }
+  .hdr-right { display:none; }
+  .exam-body,.res-inner { padding:1.2rem 1rem; }
+  .q-card { padding:1.3rem 1.1rem 1.1rem; }
+  .score-hero { padding:2rem 1.2rem; }
+  .res-stats { gap:1.5rem; }
+  .student-strip { gap:1rem; }
+  .rev-card { padding:1.2rem 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar"></div>
+
+<!-- ═══════════ SUBMITTING OVERLAY ═══════════ -->
+<div id="submitting-overlay">
+  <div class="sub-spinner"></div>
+  <div class="sub-text">Submitting your exam…</div>
+  <div class="sub-sub">Saving score to records. Please wait.</div>
+</div>
+
+<!-- ═══════════ LOGIN PAGE ═══════════ -->
+<div id="login-page" class="page">
+  <div class="login-wrap">
+    <div class="brand-icon">🏥</div>
+    <div class="login-chip">Prometric Exam Portal</div>
+    <h1 class="login-title">Clinical Lab<br><span>Sciences</span></h1>
+    <p class="login-sub">Enter your unique Student ID from the registration confirmation to access your exam. Your score will be saved automatically.</p>
+
+    <div class="login-card">
+      <label class="field-label" for="sid-input">Student ID</label>
+      <input
+        class="field-input"
+        id="sid-input"
+        type="text"
+        placeholder="e.g. CLS-2025-001"
+        autocomplete="off"
+        spellcheck="false"
+        onkeydown="if(event.key==='Enter') doLogin()"
+      >
+      <div class="error-msg" id="login-error">⚠ Invalid Student ID. Please check and try again.</div>
+      <button class="btn-login" id="login-btn" onclick="doLogin()">
+        <span class="spinner" id="login-spinner"></span>
+        <span class="btn-text">Verify & Continue →</span>
+      </button>
+    </div>
+
+    <div class="info-row">Your ID was emailed after registration form submission.</div>
+  </div>
+</div>
+
+<!-- ═══════════ WELCOME MODAL ═══════════ -->
+<div id="welcome-modal">
+  <div class="welcome-box" id="welcome-box-inner"></div>
+</div>
+
+<!-- ═══════════ EXAM PAGE ═══════════ -->
+<div id="exam-page" class="page">
+  <div class="exam-hdr">
+    <div class="hdr-brand">
+      <div class="hdr-dot"></div>
+      <span class="hdr-title">CLS PROMETRIC SIM</span>
+    </div>
+    <div class="timer-pill">
+      <span class="timer-lbl">Time</span>
+      <span id="timer">60:00</span>
+    </div>
+    <div class="hdr-right">
+      <span class="hdr-student-name" id="hdr-name">—</span>
+      <span class="hdr-student-id" id="hdr-id">—</span>
+    </div>
+  </div>
+
+  <!-- progress dots -->
+  <div class="prog-strip" id="prog-strip"></div>
+
+  <div class="exam-body">
+    <div class="section-tag">Clinical Laboratory Sciences · 45 Questions · 60 Minutes</div>
+    <div id="exam-questions"></div>
+    <div class="submit-zone">
+      <div class="submit-hint">// Review all answers before final submission</div>
+      <button class="btn-sub" id="submit-btn" onclick="confirmSubmit()">Submit Exam ⬡</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ RESULTS PAGE ═══════════ -->
+<div id="results-page" class="page">
+  <div class="res-inner">
+    <div id="score-hero-el" class="score-hero"></div>
+    <div id="sheet-status-banner"></div>
+    <div id="student-info-strip"></div>
+    <div class="review-hdr">Full Exam Review</div>
+    <div id="review-cards"></div>
+    <div class="btn-retry-wrap">
+      <button class="btn-retry" onclick="restartExam()">↩ Back to Login</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   ⚙ CONFIGURATION — CHANGE THIS URL
+   After deploying your Apps Script, paste
+   your Web App URL here:
+══════════════════════════════════════════ */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzuCbpuxoAC83XeGEyR2baXIrYPKdJr_DaY7ZrQs0hk1hOIyfBJsgvwm5nB7YT7kXnzNQ/exec";
+
+/* ══════════════════════════════════════════
+   EXAM QUESTIONS BANK (45 Questions)
+══════════════════════════════════════════ */
+const QUESTIONS = [
+  { id:1,  q:"A 35-year-old patient presents with jaundice and history of eating shellfish 2 weeks ago. What is the MOST likely route of HAV transmission?", opts:["A. Blood transfusion","B. Sexual contact","C. Fecal-oral route","D. Respiratory droplets"], ans:"C", exp:"HAV is transmitted via the fecal-oral route, commonly through contaminated food/water including shellfish. Blood transmits HBV/HCV. The 2-week incubation and shellfish history are classic for HAV." },
+  { id:2,  q:"A urine culture grows lactose-fermenting yellow colonies on CLED agar, indole-positive and motile. MOST likely causative organism?", opts:["A. Klebsiella pneumoniae","B. Proteus mirabilis","C. Escherichia coli","D. Pseudomonas aeruginosa"], ans:"C", exp:"E. coli is the most common UTI cause. It is lactose-fermenting (yellow on CLED), indole-positive (tryptophanase), and motile. Klebsiella is non-motile. Proteus produces H2S. Pseudomonas produces pyocyanin." },
+  { id:3,  q:"A technician over-decolorizes a Gram stain. What would MOST LIKELY happen to a Gram-positive organism?", opts:["A. Appear Gram-positive (purple)","B. Appear Gram-negative (red/pink)","C. Take no stain","D. Appear as acid-fast bacilli"], ans:"B", exp:"Over-decolorization removes the crystal violet-iodine complex even from thick-walled Gram-positive organisms, causing them to appear falsely pink/red after safranin counterstain." },
+  { id:4,  q:"Sputum smear from a patient with chronic cough and night sweats shows acid-fast bacilli. Which staining technique was MOST LIKELY used?", opts:["A. Gram stain","B. Albert stain","C. Ziehl-Neelsen stain","D. Giemsa stain"], ans:"C", exp:"Ziehl-Neelsen (ZN) stain detects Mycobacterium tuberculosis. Mycolic acid resists decolorization with acid-alcohol, retaining carbol fuchsin (red AFB against blue background). Albert stain is for Corynebacterium." },
+  { id:5,  q:"Which test BEST differentiates Staphylococcus aureus from coagulase-negative Staphylococci?", opts:["A. Catalase test","B. Coagulase test","C. Oxidase test","D. Bile solubility test"], ans:"B", exp:"Coagulase test differentiates S. aureus (coagulase-positive) from CoNS like S. epidermidis and S. saprophyticus (coagulase-negative). Catalase differentiates Staphylococci from Streptococci." },
+  { id:6,  q:"Neisseria gonorrhoeae requires a specific atmosphere for culture. Which atmosphere is ESSENTIAL?", opts:["A. Strict anaerobic","B. 5–10% CO₂-enriched","C. Pure oxygen","D. Nitrogen-enriched"], ans:"B", exp:"N. gonorrhoeae is a capnophile — requires CO₂-enriched atmosphere (5–10%). It is oxidase-positive and grows on Thayer-Martin medium. Strict anaerobic conditions would kill it." },
+  { id:7,  q:"Bordetella pertussis (whooping cough) grows BEST on which SPECIAL medium?", opts:["A. Lowenstein-Jensen medium","B. MacConkey agar","C. Bordet-Gengou medium","D. CLED agar"], ans:"C", exp:"Bordet-Gengou medium (potato-blood-glycerol agar) is classic for B. pertussis, producing mercury-drop colonies. Lowenstein-Jensen is for M. tuberculosis. CLED prevents Proteus swarming in urine cultures." },
+  { id:8,  q:"Blood film shows ring-form trophozoites infecting multiple RBCs and banana-shaped gametocytes. Which Plasmodium species?", opts:["A. Plasmodium vivax","B. Plasmodium malariae","C. Plasmodium ovale","D. Plasmodium falciparum"], ans:"D", exp:"P. falciparum uniquely has banana/crescent gametocytes, multiple ring forms per RBC, and causes cerebral malaria. P. vivax has Schüffner's dots. P. malariae has band-form trophozoites." },
+  { id:9,  q:"Which test identifies Streptococcus pneumoniae and differentiates it from viridans streptococci?", opts:["A. Coagulase test","B. Optochin sensitivity test","C. CAMP test","D. Catalase test"], ans:"B", exp:"Optochin sensitivity test: S. pneumoniae is SENSITIVE (inhibition ≥14mm). Viridans streptococci are RESISTANT. CAMP test identifies Group B Streptococcus (S. agalactiae). Bile solubility also confirms S. pneumoniae." },
+  { id:10, q:"Stool culture grows non-lactose-fermenting colonies on MacConkey, H₂S on XLD agar (black-centered), and is motile. MOST likely diagnosis?", opts:["A. Shigella sonnei","B. Salmonella typhi","C. E. coli O157","D. Vibrio cholerae"], ans:"B", exp:"Salmonella typhi: non-lactose-fermenting colorless colonies on MacConkey, black-centered red colonies on XLD (H₂S), and motile (peritrichous flagella). Shigella is non-motile and H₂S-negative." },
+  { id:11, q:"CBC shows Hb 8.5 g/dL, MCV 68 fL, MCH 21 pg, MCHC 29 g/dL, peripheral smear: microcytic hypochromic with pencil cells. MOST likely diagnosis?", opts:["A. Vitamin B12 deficiency","B. Anemia of chronic disease","C. Iron deficiency anemia","D. Sideroblastic anemia"], ans:"C", exp:"The triad of microcytic (MCV <80 fL), hypochromic (MCHC <32) anemia with pencil cells is classic for iron deficiency. Additional: low ferritin, low serum iron, high TIBC. B12/folate deficiency causes macrocytic anemia." },
+  { id:12, q:"Peripheral blood smear shows large immature cells with deeply basophilic cytoplasm, prominent nucleoli, WBC 85,000/μL in a 6-year-old. MOST likely diagnosis?", opts:["A. Chronic myeloid leukemia (CML)","B. Acute lymphoblastic leukemia (ALL)","C. Multiple myeloma","D. Hodgkin's lymphoma"], ans:"B", exp:"ALL is the most common malignancy in children. Blasts have scant cytoplasm, fine chromatin, and prominent nucleoli. CML is associated with the Philadelphia chromosome. Multiple myeloma involves plasma cells." },
+  { id:13, q:"What is the underlying molecular defect causing sickling of RBCs in sickle cell anemia?", opts:["A. Deficiency of alpha chains","B. Substitution of valine for glutamate at position 6 of beta chain","C. Absence of globin synthesis","D. Deficiency of G6PD enzyme"], ans:"B", exp:"Sickle cell disease results from valine (hydrophobic) replacing glutamate at position 6 of the beta-globin chain. Under hypoxia, HbS polymerizes into fibers, distorting RBCs into sickle shape. G6PD deficiency causes oxidative hemolysis, not sickling." },
+  { id:14, q:"A male patient has prolonged aPTT, normal PT, normal platelets, deep muscle bleeds and hemarthroses since childhood. His brother is similarly affected. MOST likely diagnosis?", opts:["A. Von Willebrand disease","B. Thrombocytopenia","C. Hemophilia A (Factor VIII deficiency)","D. DIC"], ans:"C", exp:"Hemophilia A is X-linked recessive (explains male predominance, family history). It prolongs aPTT (intrinsic pathway) but leaves PT and platelets normal. Hallmarks are deep tissue bleeds and hemarthroses." },
+  { id:15, q:"The Philadelphia chromosome t(9;22) creating BCR-ABL fusion gene is the diagnostic hallmark of which condition?", opts:["A. Acute lymphoblastic leukemia","B. Chronic myeloid leukemia (CML)","C. Acute myeloid leukemia","D. Chronic lymphocytic leukemia"], ans:"B", exp:"Philadelphia chromosome t(9;22)(q34;q11) creates BCR-ABL, a constitutively active tyrosine kinase, and is the hallmark of CML (>95% of cases). Imatinib (Gleevec) specifically targets BCR-ABL." },
+  { id:16, q:"Hematocrit 36%, RBC 4.0 × 10¹²/L, Hb 11.5 g/dL. What is the calculated MCV?", opts:["A. 70 fL","B. 80 fL","C. 90 fL","D. 100 fL"], ans:"C", exp:"MCV = (HCT% / RBC millions per μL) × 10 = (36/4.0) × 10 = 90 fL. This is normocytic range (80–100 fL), suggesting normocytic anemia." },
+  { id:17, q:"Pre-transfusion testing: donor cells agglutinate with patient serum. This is a positive:", opts:["A. Minor crossmatch","B. Major crossmatch","C. Direct Antiglobulin Test (DAT)","D. Antibody screen"], ans:"B", exp:"Major crossmatch = DONOR cells vs PATIENT serum — detects patient antibodies against donor antigens. A positive major crossmatch means incompatible blood. Minor crossmatch = donor plasma vs patient cells." },
+  { id:18, q:"Bleeding time 15 min (normal <9), normal PT, normal aPTT, platelet count 45,000/μL. PRIMARY mechanism of bleeding?", opts:["A. Coagulation factor deficiency","B. Thrombocytopenia","C. Vitamin K deficiency","D. Fibrinogen deficiency"], ans:"B", exp:"Thrombocytopenia (platelets <150,000) impairs primary hemostasis (platelet plug), prolonging bleeding time. PT/aPTT measure coagulation factors and are normal here. Vitamin K deficiency prolongs PT. Fibrinogen deficiency affects both PT and aPTT." },
+  { id:19, q:"Red cells agglutinate with anti-A but not anti-B. Patient serum agglutinates B cells only. What blood group?", opts:["A. Blood group B","B. Blood group O","C. Blood group A","D. Blood group AB"], ans:"C", exp:"Blood group A: cells have A antigens (react with anti-A), no B antigens. Serum contains anti-B (agglutinates B cells). Blood group O reacts with neither antisera. AB reacts with both antisera and has no serum antibodies." },
+  { id:20, q:"Which anticoagulant is used for ESR determination (Westergren method)?", opts:["A. EDTA","B. Lithium heparin","C. Sodium citrate","D. Sodium fluoride"], ans:"C", exp:"Westergren method uses 3.2% sodium citrate — blood diluted 4:1. EDTA is for CBC. Lithium heparin is for chemistry. Sodium fluoride is for glucose preservation. ESR is elevated in inflammation, infection, malignancy, and pregnancy." },
+  { id:21, q:"A neonate has maternal IgG antibodies from placental transfer. What TYPE of immunity is this?", opts:["A. Active natural immunity","B. Active artificial immunity","C. Passive natural immunity","D. Passive artificial immunity"], ans:"C", exp:"Passive natural immunity = transfer of preformed antibodies through natural means (mother to baby via placenta or breast milk). Active natural = infection. Active artificial = vaccination. Passive artificial = injection of immunoglobulins." },
+  { id:22, q:"Which immunoglobulin class is PREDOMINANT in a PRIMARY immune response?", opts:["A. IgG","B. IgA","C. IgM","D. IgE"], ans:"C", exp:"IgM is first produced in primary immune response (5–10 days post-exposure). It is a pentamer, efficient at complement activation. Secondary response has class switching to IgG (higher titer, affinity, longer half-life ~21 days)." },
+  { id:23, q:"Severe anaphylaxis after bee sting — mast cell degranulation via receptor-bound antibody cross-linking. Which immunoglobulin mediates this?", opts:["A. IgM","B. IgG","C. IgA","D. IgE"], ans:"D", exp:"Type I (immediate) hypersensitivity is mediated by IgE. IgE binds to FcεRI receptors on mast cells. Re-exposure cross-links IgE, triggering degranulation — releasing histamine, leukotrienes, prostaglandins." },
+  { id:24, q:"Which immunoglobulin predominates in body secretions — saliva, tears, colostrum, intestinal?", opts:["A. IgM","B. IgG","C. IgA","D. IgD"], ans:"C", exp:"Secretory IgA (sIgA) is the predominant mucosal immunoglobulin — exists as dimer with J-chain and secretory component (protects from proteolysis). Provides immune exclusion by preventing pathogen adherence." },
+  { id:25, q:"HIV specifically targets and destroys cells bearing which surface marker?", opts:["A. CD8","B. CD4","C. CD3","D. CD19"], ans:"B", exp:"HIV binds to CD4 receptor (with CCR5/CXCR4 co-receptors) on CD4+ T-helper cells, macrophages, and dendritic cells. CD4 count <200/μL = AIDS. CD8+ cells kill virus-infected cells. CD19 is a B-cell marker." },
+  { id:26, q:"Which HIV antigen is detected by the p24 Ag test during early infection 'window period'?", opts:["A. Envelope glycoprotein","B. Reverse transcriptase","C. HIV core (capsid) protein","D. HIV integrase"], ans:"C", exp:"p24 is the HIV CORE (capsid) protein. The p24 Ag test detects viral core protein before antibodies develop, enabling early HIV diagnosis. HIV envelope glycoproteins are gp120 and gp41. 4th-generation tests combine p24 Ag + anti-HIV antibody detection." },
+  { id:27, q:"Complement C3b acts as an opsonin. Which receptor on macrophages recognizes C3b to facilitate phagocytosis?", opts:["A. FcγR receptor","B. Toll-like receptor","C. CR1 (Complement Receptor 1)","D. MHC class II"], ans:"C", exp:"CR1 (CD35) on macrophages and neutrophils recognizes C3b deposited on pathogens, significantly enhancing phagocytosis. FcγR recognizes IgG Fc region. TLRs recognize PAMPs. MHC class II presents antigens to CD4+ cells." },
+  { id:28, q:"The MOST sensitive SCREENING test for SLE diagnosis is:", opts:["A. Anti-dsDNA antibody","B. Anti-Smith (anti-Sm) antibody","C. Anti-nuclear antibody (ANA)","D. Complement C3/C4 levels"], ans:"C", exp:"ANA is MOST SENSITIVE for SLE (>95% positive) but not specific. Anti-dsDNA and Anti-Sm are highly SPECIFIC for SLE. Anti-dsDNA correlates with disease activity. Complement C3/C4 are LOW in active SLE (consumed by immune complex disease)." },
+  { id:29, q:"Fasting blood glucose 7.2 mmol/L. Which follow-up test is MOST appropriate to CONFIRM diabetes mellitus?", opts:["A. Random blood glucose","B. OGTT or repeat fasting glucose","C. HbA1c only (without repeat glucose)","D. Urine glucose dipstick"], ans:"B", exp:"WHO/ADA criteria require confirmation on a different day. Fasting glucose ≥7.0 mmol/L on two occasions, OGTT 2h ≥11.1 mmol/L, or HbA1c ≥48 mmol/mol all confirm diabetes. Urine dipstick is unreliable for diagnosis." },
+  { id:30, q:"Which cardiac biomarker is considered the GOLD STANDARD for myocardial damage?", opts:["A. Total CK","B. LDH","C. Cardiac Troponin I or T","D. Myoglobin"], ans:"C", exp:"Cardiac Troponin I/T are the gold standard — high cardiac specificity and sensitivity. Rise 3–6h post injury, peak 12–24h, remain elevated 7–14 days. Myoglobin rises earliest but is non-specific. CK-MB is less specific than troponin." },
+  { id:31, q:"Patient renal failure: K⁺ = 6.2 mmol/L. What is this called and in which condition?", opts:["A. Hypokalemia — renal failure","B. Hyperkalemia — renal failure","C. Hyponatremia — heart failure","D. Hypernatremia — diabetes insipidus"], ans:"B", exp:"K⁺ 6.2 mmol/L (normal 3.5–5.0) = HYPERKALEMIA. In renal failure, kidneys cannot excrete potassium → dangerous accumulation → fatal cardiac arrhythmias (ECG: peaked T-waves, widened QRS)." },
+  { id:32, q:"HbA1c reflects average blood glucose over what TIME PERIOD?", opts:["A. Previous 1–2 weeks","B. Previous 2–4 weeks","C. Previous 6–8 weeks","D. Previous 6 months"], ans:"C", exp:"HbA1c reflects average blood glucose over 6–8 weeks (RBC lifespan ~120 days). Glucose non-enzymatically glycates hemoglobin proportionally. Hemolytic anemia/recent blood loss falsely LOWERS HbA1c. Target for diabetics <7.0%." },
+  { id:33, q:"In obstructive jaundice (bile duct blockage), which bilirubin PREDOMINANTLY rises?", opts:["A. Indirect (unconjugated) bilirubin","B. Direct (conjugated) bilirubin","C. Delta bilirubin","D. Urobilinogen"], ans:"B", exp:"Conjugated (direct) bilirubin is water-soluble and spills into urine (dark urine = bilirubinuria) when bile duct is blocked. In hemolytic jaundice, unconjugated rises. Urobilinogen is ABSENT in urine in complete obstruction." },
+  { id:34, q:"Which enzyme is elevated in both LIVER AND BONE disease?", opts:["A. ALT","B. AST","C. Alkaline Phosphatase (ALP)","D. GGT"], ans:"C", exp:"ALP has isoforms in liver (biliary), bone (osteoblasts), placenta, and intestine. Elevated in both cholestasis and bone disorders. GGT distinguishes: elevated GGT + elevated ALP = liver origin; normal GGT = bone origin." },
+  { id:35, q:"Uric acid is the final breakdown product of which substance?", opts:["A. Amino acids","B. Lipids","C. Purines (adenine and guanine)","D. Pyrimidines"], ans:"C", exp:"Uric acid is the end product of purine catabolism (adenine/guanine → xanthine → uric acid via xanthine oxidase). Humans lack uricase. Hyperuricemia causes gout. Allopurinol inhibits xanthine oxidase." },
+  { id:36, q:"Creatinine clearance primarily measures what?", opts:["A. Tubular secretory capacity","B. Glomerular filtration rate (GFR)","C. Renal blood flow","D. Tubular reabsorption capacity"], ans:"B", exp:"Creatinine clearance estimates GFR. Creatinine is freely filtered, not reabsorbed, minimally secreted. Normal: 95–140 mL/min (men). Inulin clearance is gold standard for GFR. PAH clearance measures renal plasma flow." },
+  { id:37, q:"A GREEN stopper blood collection tube contains which anticoagulant?", opts:["A. EDTA","B. Sodium citrate","C. Heparin","D. Sodium fluoride/potassium oxalate"], ans:"C", exp:"Green-top = Heparin (lithium or sodium heparin). Used for most plasma chemistry tests. EDTA (purple/lavender) = CBC. Sodium citrate (blue) = coagulation (PT/aPTT). Sodium fluoride (gray) = glucose preservation." },
+  { id:38, q:"The Beer-Lambert Law is fundamental to photometric analysis. Which instrument is based on this principle?", opts:["A. Flame photometer","B. Spectrophotometer (colorimeter)","C. Atomic absorption spectrophotometer","D. Fluorometer"], ans:"B", exp:"Spectrophotometer/colorimeter: A = εcl. Used for glucose, urea, creatinine, bilirubin, proteins. Flame photometer measures Na⁺/K⁺ emission. Atomic absorption measures trace metals. Fluorometer measures fluorescence emission." },
+  { id:39, q:"LDL 4.5 mmol/L, HDL 0.9 mmol/L. High LDL is PRIMARILY associated with increased risk of:", opts:["A. Nephrotic syndrome","B. Coronary artery disease (atherosclerosis)","C. Pernicious anemia","D. Diabetes insipidus"], ans:"B", exp:"Elevated LDL ('bad cholesterol') deposits cholesterol in arterial walls forming atheromas → atherosclerosis → CAD. HDL ('good cholesterol') performs reverse cholesterol transport. Desirable LDL <2.6 mmol/L (<100 mg/dL)." },
+  { id:40, q:"Pregnant woman: BP 155/100, edema, urine 3+ proteinuria. MOST significant cause?", opts:["A. Urinary tract infection","B. Pre-eclampsia / Nephrotic syndrome","C. Dehydration","D. Benign orthostatic proteinuria"], ans:"B", exp:"Triad of hypertension + edema + proteinuria ≥300 mg/24h after 20 weeks = Pre-eclampsia. Nephrotic range ≥3.5 g/24h indicates significant glomerular damage → hypoalbuminemia → edema. UTI causes pyuria/bacteriuria with mild proteinuria." },
+  { id:41, q:"Which Plasmodium species transmitted by female Anopheles mosquito causes the MOST LETHAL form with cerebral complications?", opts:["A. Plasmodium vivax","B. Plasmodium ovale","C. Plasmodium malariae","D. Plasmodium falciparum"], ans:"D", exp:"P. falciparum causes malignant tertian malaria — most lethal, causing cerebral malaria, severe anemia, respiratory distress. P. vivax/ovale cause benign tertian with relapse (liver hypnozoites). P. malariae causes quartan malaria." },
+  { id:42, q:"Peripheral film: hypersegmented neutrophils (≥5 lobes), macro-ovalocytes, MCV 115 fL. MOST LIKELY nutritional deficiency?", opts:["A. Iron deficiency","B. Vitamin B12 or folate deficiency","C. Vitamin C deficiency","D. Copper deficiency"], ans:"B", exp:"Megaloblastic anemia: macro-ovalocytes + hypersegmented neutrophils (≥5 lobes = pathognomonic) + elevated MCV (>100 fL). B12 deficiency also causes neurological damage. Folate deficiency common in pregnancy." },
+  { id:43, q:"Renal transplant — kidney swollen, cyanotic, ceased function within first 24 hours. MOST consistent with:", opts:["A. Acute cellular rejection","B. Chronic rejection","C. Hyperacute rejection","D. Accelerated acute rejection"], ans:"C", exp:"Hyperacute rejection occurs within minutes to hours — caused by PREFORMED anti-donor antibodies (ABO incompatibility, pre-existing anti-HLA from prior transfusions/pregnancy). Complement activation → thrombosis → irreversible failure." },
+  { id:44, q:"Blood gas: pH 7.30, PaCO₂ 55 mmHg, HCO₃⁻ 26 mmol/L. What acid-base disturbance?", opts:["A. Metabolic acidosis","B. Metabolic alkalosis","C. Respiratory acidosis","D. Respiratory alkalosis"], ans:"C", exp:"Respiratory acidosis: LOW pH (<7.35) + HIGH PaCO₂ (>45 = hypoventilation/CO₂ retention) + NORMAL HCO₃⁻. Causes: COPD, pneumonia, opiate overdose. Metabolic acidosis = low pH + low HCO₃⁻. Here pH↓ + PaCO₂↑ = respiratory acidosis." },
+  { id:45, q:"Standard autoclave sterilization — CORRECT temperature and time combination?", opts:["A. 100°C for 30 minutes","B. 121°C for 15–20 minutes at 15 psi","C. 160°C for 60 minutes","D. 60°C for 30 minutes"], ans:"B", exp:"Autoclave uses SATURATED STEAM at 121°C (250°F) for 15–20 min at 15 psi — destroys all microorganisms including spores. 160°C/60 min = Hot Air Oven (glassware). 60°C/30 min = Pasteurization (not sterilization)." }
+];
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let currentStudent = null;
+let userAnswers    = {};
+let timerRef       = null;
+let timeLeft       = 60 * 60;
+
+/* ══════════════════════════════════════════
+   LOGIN FLOW
+══════════════════════════════════════════ */
+async function doLogin() {
+  const input = document.getElementById('sid-input').value.trim();
+  const errEl = document.getElementById('login-error');
+  const btn   = document.getElementById('login-btn');
+
+  if (!input) {
+    errEl.textContent = '⚠ Please enter your Student ID.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  errEl.classList.remove('show');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  document.getElementById('login-spinner').style.display = 'block';
+
+  // ── Try real API first ──
+  let studentData = null;
+
+  if (APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes('YOUR_SCRIPT_ID_HERE')) {
+    try {
+      const res = await fetch(`${APPS_SCRIPT_URL}?action=login&id=${encodeURIComponent(input)}`);
+      const data = await res.json();
+      if (data.status === 'found') {
+        studentData = data;
+      } else {
+        throw new Error(data.message || 'Not found');
+      }
+    } catch(e) {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+      document.getElementById('login-spinner').style.display = 'none';
+      errEl.textContent = '⚠ ' + (e.message || 'Connection error. Check your network.');
+      errEl.classList.add('show');
+      return;
+    }
+  } else {
+    // ── DEMO / OFFLINE MODE — accept any non-empty ID ──
+    await new Promise(r => setTimeout(r, 1000)); // simulate delay
+    studentData = {
+      status: 'found',
+      name: 'Demo Student',
+      email: 'demo@example.com',
+      college: 'Demo College',
+      subject: 'Clinical Laboratory Sciences',
+      studentId: input,
+      alreadyAttempted: false
+    };
+  }
+
+  btn.classList.remove('loading');
+  btn.disabled = false;
+  document.getElementById('login-spinner').style.display = 'none';
+
+  currentStudent = { ...studentData, studentId: input };
+  showWelcomeModal(studentData);
+}
+
+function showWelcomeModal(data) {
+  const alreadyHtml = data.alreadyAttempted
+    ? `<div class="already-warn">⚠ You have already attempted this exam.<br>Previous score: <strong>${data.previousScore}</strong><br>Retaking will overwrite your previous result.</div>`
+    : '';
+
+  document.getElementById('welcome-box-inner').innerHTML = `
+    <div class="welcome-avatar">👤</div>
+    <div class="welcome-hi">Identity Verified</div>
+    <div class="welcome-name">${data.name}</div>
+    <div class="welcome-info">${data.college || ''} ${data.subject ? '· ' + data.subject : ''}</div>
+    ${alreadyHtml}
+    <div class="welcome-stats">
+      <div class="ws-item"><div class="ws-num">45</div><div class="ws-key">Questions</div></div>
+      <div class="ws-item"><div class="ws-num">60</div><div class="ws-key">Minutes</div></div>
+      <div class="ws-item"><div class="ws-num">30</div><div class="ws-key">Pass Mark</div></div>
+    </div>
+    <button class="btn-begin" onclick="beginExam()">Begin Exam Now →</button>`;
+
+  document.getElementById('welcome-modal').classList.add('show');
+}
+
+/* ══════════════════════════════════════════
+   START EXAM
+══════════════════════════════════════════ */
+function beginExam() {
+  document.getElementById('welcome-modal').classList.remove('show');
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('exam-page').style.display  = 'block';
+
+  // fill header
+  document.getElementById('hdr-name').textContent = currentStudent.name || '—';
+  document.getElementById('hdr-id').textContent   = currentStudent.studentId || '—';
+
+  buildProgressDots();
+  buildQuestions();
+  startTimer();
+  window.scrollTo(0, 0);
+}
+
+/* ══════════════════════════════════════════
+   BUILD UI
+══════════════════════════════════════════ */
+function buildProgressDots() {
+  const strip = document.getElementById('prog-strip');
+  strip.innerHTML = QUESTIONS.map(q =>
+    `<div class="prog-dot" id="pd-${q.id}" title="Q${q.id}"></div>`
+  ).join('');
+}
+
+function buildQuestions() {
+  const wrap = document.getElementById('exam-questions');
+  wrap.innerHTML = '';
+  QUESTIONS.forEach(q => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = `qc-${q.id}`;
+    card.innerHTML = `
+      <div class="q-top">
+        <span class="q-num">Q${q.id}</span>
+        <span class="q-text">${q.q}</span>
+      </div>
+      <div class="opts">
+        ${q.opts.map(opt => {
+          const letter = opt.charAt(0);
+          return `<label class="opt" id="opt-${q.id}-${letter}" onclick="pickAnswer(${q.id},'${letter}',this)">
+            <input type="radio" name="q${q.id}" value="${letter}">
+            <span class="opt-bullet">${letter}</span>
+            <span>${opt.substring(3)}</span>
+          </label>`;
+        }).join('')}
+      </div>`;
+    wrap.appendChild(card);
+  });
+}
+
+function pickAnswer(qid, val, el) {
+  document.querySelectorAll(`[id^="opt-${qid}-"]`).forEach(l => l.classList.remove('sel'));
+  el.classList.add('sel');
+  userAnswers[qid] = val;
+
+  // update progress dot
+  const pd = document.getElementById(`pd-${qid}`);
+  if (pd) pd.classList.add('done');
+
+  // mark card answered
+  const card = document.getElementById(`qc-${qid}`);
+  if (card) card.classList.add('answered');
+}
+
+/* ══════════════════════════════════════════
+   TIMER
+══════════════════════════════════════════ */
+function startTimer() {
+  const el = document.getElementById('timer');
+  timerRef = setInterval(() => {
+    timeLeft--;
+    const m = String(Math.floor(timeLeft / 60)).padStart(2,'0');
+    const s = String(timeLeft % 60).padStart(2,'0');
+    el.textContent = `${m}:${s}`;
+
+    if (timeLeft <= 600 && timeLeft > 180) el.className = 'warn';
+    else if (timeLeft <= 180)              el.className = 'danger';
+    if (timeLeft <= 0) { clearInterval(timerRef); doSubmit(); }
+  }, 1000);
+}
+
+/* ══════════════════════════════════════════
+   SUBMIT
+══════════════════════════════════════════ */
+function confirmSubmit() {
+  const unanswered = QUESTIONS.length - Object.keys(userAnswers).length;
+  if (unanswered > 0) {
+    if (!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) return;
+  }
+  doSubmit();
+}
+
+async function doSubmit() {
+  clearInterval(timerRef);
+  document.getElementById('exam-page').style.display = 'none';
+
+  // Show loading overlay
+  const overlay = document.getElementById('submitting-overlay');
+  overlay.classList.add('show');
+
+  // Calculate score
+  let score = 0;
+  QUESTIONS.forEach(q => { if (userAnswers[q.id] === q.ans) score++; });
+  const total = QUESTIONS.length;
+
+  // Send to Google Sheet
+  let sheetOk = false;
+  let sheetMsg = '';
+
+  if (APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes('YOUR_SCRIPT_ID_HERE')) {
+    try {
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          studentId: currentStudent.studentId,
+          score: score,
+          total: total
+        }),
+        headers: { 'Content-Type': 'text/plain' }
+      });
+      const data = await res.json();
+      sheetOk  = data.status === 'success';
+      sheetMsg = data.message || '';
+    } catch(e) {
+      sheetOk  = false;
+      sheetMsg = 'Network error — score not saved to sheet.';
+    }
+  } else {
+    // Demo mode
+    await new Promise(r => setTimeout(r, 1500));
+    sheetOk  = true;
+    sheetMsg = 'Demo mode — configure APPS_SCRIPT_URL to save to Google Sheet.';
+  }
+
+  overlay.classList.remove('show');
+  showResults(score, total, sheetOk, sheetMsg);
+}
+
+/* ══════════════════════════════════════════
+   SHOW RESULTS
+══════════════════════════════════════════ */
+function showResults(score, total, sheetOk, sheetMsg) {
+  document.getElementById('results-page').style.display = 'block';
+  window.scrollTo(0, 0);
+
+  const pass    = score >= 30;
+  const cls     = pass ? 'pass' : 'fail';
+  const pct     = Math.round((score / total) * 100);
+  const verdict = pass ? 'PASS' : 'FAIL';
+  const msg     = pass ? '🎉 Congratulations! You have passed.' : '📚 Keep studying. You can do better!';
+
+  let correct=0, incorrect=0, skipped=0;
+  QUESTIONS.forEach(q => {
+    const ua = userAnswers[q.id];
+    if (!ua)           skipped++;
+    else if(ua===q.ans) correct++;
+    else               incorrect++;
+  });
+
+  // Score hero
+  document.getElementById('score-hero-el').className = `score-hero`;
+  document.getElementById('score-hero-el').innerHTML = `
+    <div class="sh-eyebrow">// Exam Results · Clinical Laboratory Sciences</div>
+    <div class="score-ring ${cls}">
+      <div class="score-big ${cls}">${score}</div>
+      <div class="score-denom">out of ${total}</div>
+    </div>
+    <div class="verdict-badge ${cls}">${verdict}</div>
+    <div class="verdict-msg">${msg}</div>
+    <div class="res-stats">
+      <div class="rs-item"><div class="rs-val" style="color:var(--green)">${correct}</div><div class="rs-key">Correct</div></div>
+      <div class="rs-item"><div class="rs-val" style="color:var(--red)">${incorrect}</div><div class="rs-key">Incorrect</div></div>
+      <div class="rs-item"><div class="rs-val" style="color:var(--mid)">${skipped}</div><div class="rs-key">Skipped</div></div>
+      <div class="rs-item"><div class="rs-val" style="color:var(--gold)">${pct}%</div><div class="rs-key">Percentage</div></div>
+    </div>`;
+
+  // Sheet save banner
+  document.getElementById('sheet-status-banner').innerHTML = sheetOk
+    ? `<div class="sheet-banner"><span class="sbi">✓</span><span>Score saved to Google Sheet successfully! Your instructor can now see your result.</span></div>`
+    : `<div class="sheet-banner error"><span class="sbi">⚠</span><span>${sheetMsg || 'Score could not be saved to Google Sheet. Please inform your instructor.'}</span></div>`;
+
+  // Student info
+  if (currentStudent) {
+    document.getElementById('student-info-strip').innerHTML = `
+      <div class="student-strip">
+        <div class="ss-item"><div class="ss-key">Name</div><div class="ss-val">${currentStudent.name||'—'}</div></div>
+        <div class="ss-item"><div class="ss-key">Student ID</div><div class="ss-val">${currentStudent.studentId||'—'}</div></div>
+        <div class="ss-item"><div class="ss-key">College</div><div class="ss-val">${currentStudent.college||'—'}</div></div>
+        <div class="ss-item"><div class="ss-key">Subject</div><div class="ss-val">${currentStudent.subject||'—'}</div></div>
+      </div>`;
+  }
+
+  // Review cards
+  const revEl = document.getElementById('review-cards');
+  revEl.innerHTML = '';
+  QUESTIONS.forEach(q => {
+    const ua = userAnswers[q.id];
+    let st, stcls;
+    if (!ua)          { st='SKIPPED';   stcls='skipped'; }
+    else if(ua===q.ans){ st='CORRECT';  stcls='correct'; }
+    else              { st='INCORRECT'; stcls='incorrect'; }
+
+    const correctOpt = q.opts.find(o=>o.startsWith(q.ans+'.'));
+    const userOpt    = ua ? q.opts.find(o=>o.startsWith(ua+'.')) : null;
+
+    let ansHtml = '';
+    if (!ua) {
+      ansHtml = `<div class="ans-row ua-wrong" style="border-color:rgba(74,85,104,0.3);background:rgba(74,85,104,0.08)">
+        <span class="ans-tag" style="color:var(--mid)">Your Answer</span>
+        <span class="ans-val" style="color:var(--mid);font-style:italic">— Not answered</span></div>
+        <div class="ans-row ca-row">
+        <span class="ans-tag">Correct Answer</span>
+        <span class="ans-val">${q.ans}. ${correctOpt?correctOpt.substring(3):''}</span></div>`;
+    } else if (ua===q.ans) {
+      ansHtml = `<div class="ans-row ua-right">
+        <span class="ans-tag">Your Answer ✓</span>
+        <span class="ans-val">${ua}. ${userOpt?userOpt.substring(3):''}</span></div>`;
+    } else {
+      ansHtml = `<div class="ans-row ua-wrong">
+        <span class="ans-tag">Your Answer ✗</span>
+        <span class="ans-val">${ua}. ${userOpt?userOpt.substring(3):''}</span></div>
+        <div class="ans-row ca-row">
+        <span class="ans-tag">Correct Answer</span>
+        <span class="ans-val">${q.ans}. ${correctOpt?correctOpt.substring(3):''}</span></div>`;
+    }
+
+    const card = document.createElement('div');
+    card.className = `rev-card ${stcls}`;
+    card.innerHTML = `
+      <div class="rv-top">
+        <span class="rv-tag ${stcls}">${st}</span>
+        <span class="rv-qtext"><strong>Q${q.id}.</strong> ${q.q}</span>
+      </div>
+      <div class="ans-block">${ansHtml}</div>
+      <div class="exp-box">
+        <div class="exp-ttl">📖 Explanation</div>
+        <p class="exp-p">${q.exp}</p>
+      </div>`;
+    revEl.appendChild(card);
+  });
+}
+
+/* ══════════════════════════════════════════
+   RESTART
+══════════════════════════════════════════ */
+function restartExam() {
+  userAnswers    = {};
+  currentStudent = null;
+  timeLeft       = 60 * 60;
+  clearInterval(timerRef);
+  document.getElementById('timer').textContent = '60:00';
+  document.getElementById('timer').className   = '';
+  document.getElementById('sid-input').value   = '';
+  document.getElementById('login-error').classList.remove('show');
+  document.getElementById('results-page').style.display = 'none';
+  document.getElementById('login-page').style.display   = 'flex';
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
